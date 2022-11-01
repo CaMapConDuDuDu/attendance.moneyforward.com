@@ -1,0 +1,14 @@
+{
+  "name": "Autoclick",
+  "description": "Base Level Extension",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "layout/popup.html",
+    "default_icon": "images/default_icon.png"
+  },
+  "permissions": ["scripting", "activeTab", "alarms", "storage", "tabs"],
+  "background": {
+    "service_worker": "scripts/background.js"
+  }
+}

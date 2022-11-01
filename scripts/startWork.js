@@ -1,0 +1,1 @@
+(document.querySelector('form.clock_in button.time-stamp-button') || {click: () => {}}).click();
