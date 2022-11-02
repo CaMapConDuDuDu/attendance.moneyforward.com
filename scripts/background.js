@@ -3,15 +3,20 @@ chrome.runtime.onInstalled.addListener(() => {
     text: "OFF",
   });
   chrome.storage.local.set({
-    active: false
+    active: false,
+    inTime: undefined,
+    breakTime: undefined,
+    resumeTime: undefined,
+    outTime: undefined,
   });
 });
 
-chrome.action.onClicked.addListener(async (tab) => {
-  if (isActiveSite(tab)) {
-    chrome.storage.local.get(['active'], result => changeActive(!result.active, tab));
+chrome.storage.local.onChanged.addListener(e => {
+  if (e.message) {
+    changeActive(e.message.active, e.message)
   }
-});
+  updateLabel();
+})
 
 chrome.alarms.onAlarm.addListener(e => {
   let script = null;
@@ -69,8 +74,7 @@ const initAlarm = () => {
   initBreakTime();
   initResumeTime();
   initOutTime();
-};
-
+}
 const initInTime = () => {
   const inTime = getDateInMs(8, true);
   chrome.storage.local.set({
@@ -80,7 +84,6 @@ const initInTime = () => {
     when: inTime
   });
 }
-
 const initBreakTime = () => {
   const breakTime = getDateInMs(12, true);
   chrome.storage.local.set({
@@ -90,7 +93,6 @@ const initBreakTime = () => {
     when: breakTime
   });
 }
-
 const initResumeTime = () => {
   const resumeTime = getDateInMs(13, true);
   chrome.storage.local.set({
@@ -100,7 +102,6 @@ const initResumeTime = () => {
     when: resumeTime
   });
 }
-
 const initOutTime = () => {
   const outTime = getDateInMs(17, true);
   chrome.storage.local.set({
@@ -119,6 +120,7 @@ const getDateInMs = (hr) => {
   const targetDate = new Date();
   targetDate.setHours(hr + diff);
   targetDate.setMinutes(rand >= 0 ? rand : (60 + rand));
+  targetDate.setSeconds(randomIn(0, 59));
   if (targetDate.getTime() < new Date().getTime()) {
     targetDate.setDate(targetDate.getDate() + 1);
   }

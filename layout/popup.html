@@ -1,6 +1,124 @@
 <html>
-  <body>
-    <h1>Hello Extensions</h1>
-    <script src="/scripts/popup/index.js"></script>
-  </body>
+  <meta charset="UTF-8">
+
+<body>
+  <div class="container">
+    <a class="notWorking" href="https://attendance.moneyforward.com/my_page">Open MF-Attendance</a>
+    <div class="btnAction">
+      <div class="btnGroup">
+        <div id="startBtn"></div>
+        <div id="stopBtn"></div>
+      </div>
+      <div class="clickInfo">
+        <div class="clockIn">8:00:00</div>
+        <div class="startBreak">12:00:00</div>
+        <div class="endBreak">13:00:00</div>
+        <div class="clockOut">17:00:00</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/scripts/popup/index.js"></script>
+</body>
+<style>
+  .container {
+    width: 180px;
+  }
+
+  #startBtn {
+    position: relative;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 15px 0 15px 30px;
+    border-color: transparent transparent transparent #27ae60;
+    transition: all 1s;
+  }
+
+  #stopBtn {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-color: #e74c3c;
+    transition: all 1s;
+    border-width: 0;
+  }
+
+  .btnGroup {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 180px;
+    height: 20px;
+  }
+
+  .btnGroup.stopped #startBtn {
+    border-width: 0;
+  }
+
+  .btnGroup.stopped #stopBtn {
+    border-width: 15px;
+  }
+
+  .btnGroup.stopped ~ .clickInfo {
+    height: 0;
+  }
+
+  .clickInfo {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .clickInfo>div {
+    padding-left: 10px;
+    flex: 1 0 calc(50% - 10px);
+    justify-content: space-between;
+  }
+
+  .clockIn::before {
+    content: '🕗';
+    position: relative;
+    left: -5px;
+  }
+
+  .startBreak::before {
+    content: '🕛';
+    position: relative;
+    left: -5px;
+  }
+
+  .endBreak::before {
+    content: '🕐';
+    position: relative;
+    left: -5px;
+  }
+
+  .clockOut::before {
+    content: '🕓';
+    position: relative;
+    left: -5px;
+  }
+
+  .notWorking {
+    color: red;
+    text-decoration: none;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    font-size: 18px;
+    display: none;
+  }
+
+  .notWorking.show+.btnAction {
+    display: none;
+  }
+
+  .notWorking.show {
+    display: flex;
+  }
+  .btnGroup {
+    cursor: pointer;
+  }
+</style>
+
 </html>
