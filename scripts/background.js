@@ -4,16 +4,18 @@ chrome.runtime.onInstalled.addListener(() => {
   });
   chrome.storage.local.set({
     active: false,
-    inTime: undefined,
-    breakTime: undefined,
-    resumeTime: undefined,
-    outTime: undefined,
+    inTime: 0,
+    breakTime: 0,
+    resumeTime: 0,
+    outTime: 0,
+    message: null
   });
 });
 
 chrome.storage.local.onChanged.addListener(e => {
-  if (e.message) {
-    changeActive(e.message.active, e.message)
+  if (e.message && e.message.newValue) {
+    const newValue =  e.message.newValue;
+    changeActive(newValue.active, newValue)
   }
   updateLabel();
 })

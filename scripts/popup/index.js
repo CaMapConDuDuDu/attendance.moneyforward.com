@@ -4,7 +4,8 @@ const setActiveState = async state => {
     message: {
       active: state,
       id: tab.id,
-      url: tab.url
+      url: tab.url,
+      t: new Date().getTime()
     }
   });
 }
@@ -29,13 +30,12 @@ const getCurrentTab = async () => {
 }
 
 const setLabel = () => {
-  console.log("setLabel")
-  chrome.storage.local.get(['inTime', 'breakTime', 'resumeTime', 'outTime', 'active'], result => {
-    setTimeDOM('.clockIn', result.inTime);
-    setTimeDOM('.startBreak', result.breakTime);
-    setTimeDOM('.endBreak', result.resumeTime);
-    setTimeDOM('.clockOut', result.outTime);
-    document.querySelector('.btnGroup').classList[!result.active ? 'remove' : 'add']('stopped');
+  chrome.storage.local.get(['active'], result => {
+    chrome.alarms.get('inTime', e => setTimeDOM('.clockIn', e.scheduledTime))
+    chrome.alarms.get('startBreak', e => setTimeDOM('.clockIn', e.breakTime))
+    chrome.alarms.get('endBreak', e => setTimeDOM('.clockIn', e.resumeTime))
+    chrome.alarms.get('clockOut', e => setTimeDOM('.clockIn', e.outTime))
+    document.querySelector('.btnGroup').classList[result.active ? 'remove' : 'add']('stopped');
   });
 }
 
