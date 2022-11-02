@@ -43,5 +43,10 @@ init();
 document.querySelector('#startBtn').onclick = () => setActiveState(true)
 document.querySelector('#stopBtn').onclick = () => setActiveState(false)
 const getTime = date => date.toString().substr(16, 8);
-const setTimeDOM = (selector, value) => document.querySelector(selector).innerText = value ? getTime(new Date(value)) : 'Unset';
+const setTimeDOM = (selector, value) => {
+  const dom = document.querySelector(selector);
+  dom.innerText = value ? getTime(new Date(value)) : 'Unset';
+  const isTomorrow = new Date().getDate() != new Date(value).getDate();
+  dom.classList[isTomorrow ? 'add' : 'remove']('tomorrow');
+}
 chrome.storage.local.onChanged.addListener(setLabel)

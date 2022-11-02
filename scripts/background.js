@@ -48,14 +48,13 @@ chrome.alarms.onAlarm.addListener(e => {
       changeActive(false, {id: null});
       return;
     }
-    console.log(script)
 
-    // chrome.scripting.executeScript({
-    //   files: [script],
-    //   target: {
-    //     tabId: result.tabId
-    //   },
-    // });
+    chrome.scripting.executeScript({
+      files: [script],
+      target: {
+        tabId: result.tabId
+      },
+    });
   });
 })
 
@@ -78,7 +77,7 @@ const initAlarm = () => {
   initOutTime();
 }
 const initInTime = () => {
-  const inTime = getDateInMs(8);
+  const inTime = getDateInMs(8, -1);
   chrome.storage.local.set({
     inTime
   });
@@ -87,7 +86,7 @@ const initInTime = () => {
   });
 }
 const initBreakTime = () => {
-  const breakTime = getDateInMs(12);
+  const breakTime = getDateInMs(12, 1);
   chrome.storage.local.set({
     breakTime
   });
@@ -96,7 +95,7 @@ const initBreakTime = () => {
   });
 }
 const initResumeTime = () => {
-  const resumeTime = getDateInMs(13);
+  const resumeTime = getDateInMs(13, -1);
 
   chrome.storage.local.set({
     resumeTime
@@ -106,7 +105,7 @@ const initResumeTime = () => {
   });
 }
 const initOutTime = () => {
-  const outTime = getDateInMs(17);
+  const outTime = getDateInMs(17, 1);
   chrome.storage.local.set({
     outTime
   });
@@ -117,8 +116,9 @@ const initOutTime = () => {
 
 const clearAlarm = () => chrome.alarms.clearAll();
 const randomIn = (start, end) => Math.round(Math.random() * (end - start) + start);
-const getDateInMs = hr => {
-  const rand = randomIn(0, 10) - 5;
+const getDateInMs = (hr, minus) => {
+  let rand = randomIn(0, 10);
+  if (minus < 0) rand = - rand;
   const diff = rand < 0 ? -1 : 0;
   const targetDate = new Date();
   targetDate.setHours(hr + diff);
