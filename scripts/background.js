@@ -106,30 +106,18 @@ const initResumeTime = () => {
   });
 }
 const initOutTime = () => {
-  getDateInMs(17, outTime => {
-    chrome.storage.local.set({
-      outTime
-    });
-    chrome.alarms.create('outTime', {
-      when: outTime
-    });
+  const outTime = getDateInMs(17);
+  chrome.storage.local.set({
+    outTime
+  });
+  chrome.alarms.create('outTime', {
+    when: outTime
   });
 }
 
 const clearAlarm = () => chrome.alarms.clearAll();
 const randomIn = (start, end) => Math.round(Math.random() * (end - start) + start);
-const getDateInMs = (hr, isOutTimeCb = null) => {
-  if (isOutTimeCb) {
-    chrome.storage.local.get(['inTime', 'breakTime', 'resumeTime'], result => {
-      if (!result.breakTime || !result.inTime || !result.resumeTime) {
-        return setTimeout(() => getDateInMs(hr, isOutTimeCb), 200);
-      }
-      const outTimeInMs = (8 * 3600 + randomIn(0, 600)) * 1000  - (result.breakTime - result.inTime - result.resumeTime);
-      isOutTimeCb(outTimeInMs);
-    })
-    return;
-  }
-
+const getDateInMs = hr => {
   const rand = randomIn(0, 10) - 5;
   const diff = rand < 0 ? -1 : 0;
   const targetDate = new Date();
