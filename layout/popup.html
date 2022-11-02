@@ -16,6 +16,7 @@
         <div class="endBreak">13:00:00</div>
         <div class="clockOut">17:00:00</div>
       </div>
+      <div class="message-2">Working Time: <span></span></div>
     </div>
   </div>
 
@@ -71,18 +72,18 @@
     opacity: 0;
   }
 
-  .btnGroup.stopped ~ .clickInfo {
+  .btnGroup.stopped ~ .clickInfo, .btnGroup.stopped ~ .message-2 {
     height: 0;
     overflow: hidden;
   }
 
   .message {
-    opacity: 0;
+    height: 0;
     overflow: hidden;
   }
 
   .btnGroup.stopped ~ .message {
-    opacity: 1;
+    height: auto;
     text-align: center;
   }
 

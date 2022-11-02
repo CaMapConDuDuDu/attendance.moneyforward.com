@@ -30,12 +30,15 @@ const getCurrentTab = async () => {
 }
 
 const setLabel = () => {
-  chrome.storage.local.get(['active'], result => {
-    chrome.alarms.get('inTime', e => setTimeDOM('.clockIn', e.scheduledTime))
-    chrome.alarms.get('startBreak', e => setTimeDOM('.clockIn', e.breakTime))
-    chrome.alarms.get('endBreak', e => setTimeDOM('.clockIn', e.resumeTime))
-    chrome.alarms.get('clockOut', e => setTimeDOM('.clockIn', e.outTime))
+  chrome.storage.local.get(['active', 'inTime', 'breakTime', 'resumeTime', 'outTime'], result => {
+    chrome.alarms.get('inTime', e => setTimeDOM('.clockIn', (e || {}).scheduledTime))
+    chrome.alarms.get('breakTime', e => setTimeDOM('.startBreak', (e || {}).scheduledTime));
+    chrome.alarms.get('resumeTime', e => setTimeDOM('.endBreak', (e || {}).scheduledTime));
+    chrome.alarms.get('outTime', e => setTimeDOM('.clockOut', (e || {}).scheduledTime));
     document.querySelector('.btnGroup').classList[result.active ? 'remove' : 'add']('stopped');
+    const wrInMs = (result.breakTime - result.inTime + result.outTime - result.resumeTime);
+    const outputWkTime = document.querySelector('.message-2 span');
+    outputWkTime.innerHTML = msToDate(wrInMs)
   });
 }
 
@@ -43,5 +46,15 @@ init();
 document.querySelector('#startBtn').onclick = () => setActiveState(true)
 document.querySelector('#stopBtn').onclick = () => setActiveState(false)
 const getTime = date => date.toString().substr(16, 8);
+const msToDate = ms => {
+  ms /= 1000;
+  const date = new Date();
+  date.setHours(Math.floor(ms / 3600));
+  ms = ms % 3600;
+  date.setMinutes(Math.floor(ms / 60));
+  ms = ms % 60;
+  date.setSeconds(ms)
+  return getTime(date);
+}
 const setTimeDOM = (selector, value) => document.querySelector(selector).innerText = value ? getTime(new Date(value)) : 'Unset';
 chrome.storage.local.onChanged.addListener(setLabel)
