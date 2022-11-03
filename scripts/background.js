@@ -1,7 +1,4 @@
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.action.setBadgeText({
-    text: "OFF",
-  });
   chrome.storage.local.set({
     active: false,
     inTime: 0,
@@ -79,9 +76,7 @@ const changeActive = (nextState, tab) => {
     tabId: tab.id
   });
 
-  chrome.action.setBadgeText({
-    text: nextState ? "ON" : "OFF",
-  });
+  chrome.action.setIcon({path: getPaths(nextState)});
   return nextState ? initAlarm(tab) : clearAlarm();
 }
 const initAlarm = (tab) => {
@@ -167,11 +162,13 @@ const getDateInMs = (hr, minus) => {
   }
   return targetDate.getTime();
 }
-const updateLabel = async () => {
+const updateLabel = () => {
   chrome.storage.local.get(['active'], result => {
-    chrome.action.setBadgeText({
-      text: result.active ? "ON" : "OFF",
-    });
+    chrome.browserAction.setIcon({path: getPath(result.active)});
   })
+}
+const getPath = (state) => state ? '/images/icons/started-*.png' : '/images/icons/stopped-*.png';
+const getPaths = (state) => {
+  return [16, 32, 64, 128].reduce((acc, r) => (acc[r] = getPath(state).replace('*', r), acc), {});
 }
 chrome.tabs.onUpdated.addListener(updateLabel)

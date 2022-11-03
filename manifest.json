@@ -1,11 +1,16 @@
 {
-  "name": "Autoclick",
-  "description": "Base Level Extension",
+  "name": "Magic Cat",
+  "description": "A cat do a magic thing",
   "version": "1.0",
   "manifest_version": 3,
   "action": {
     "default_popup": "layout/popup.html",
-    "default_icon": "images/default_icon.png"
+    "default_icon": {
+      "16": "images/icons/stopped-16.png",
+      "32": "images/icons/stopped-32.png",
+      "64": "images/icons/stopped-64.png",
+      "128": "images/icons/stopped-128.png"
+    }
   },
   "permissions": ["scripting", "activeTab", "alarms", "storage", "tabs"],
   "background": {

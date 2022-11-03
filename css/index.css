@@ -1,0 +1,179 @@
+.container {
+  width: 180px;
+  height: 100%;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+}
+
+#startBtn {
+  position: relative;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-color: transparent transparent transparent #27ae60;
+  transition: all 1s;
+  border-width: 0;
+  opacity: 0;
+}
+
+#stopBtn {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-color: #e74c3c;
+  transition: all 1s;
+  border-width: 6px;
+  position: absolute;
+  top: 27.5px;
+  opacity: 1;
+}
+
+.btnGroup {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  width: 180px;
+  height: 20px;
+}
+
+.btnGroup.stopped #startBtn {
+  border-width: 15px 0 15px 30px;
+  opacity: 1;
+}
+.btnGroup.stopped img {
+  display: none;
+}
+
+.btnGroup.stopped #stopBtn {
+  border-width: 0;
+  opacity: 0;
+}
+
+.btnGroup.stopped~.clickInfo {
+  height: 0;
+  overflow: hidden;
+}
+
+.message {
+  height: 0;
+  overflow: hidden;
+}
+
+.btnGroup.stopped~.message {
+  height: auto;
+  text-align: center;
+}
+
+.clickInfo {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.clickInfo>div {
+  padding-left: 10px;
+  flex: 1 0 calc(50% - 10px);
+  justify-content: space-between;
+  font-size: 14px;
+  padding-top: 6px;
+  cursor: pointer;
+}
+
+.clockIn::before {
+  content: '🕗';
+  position: relative;
+  left: -5px;
+}
+
+.startBreak::before {
+  content: '🕛';
+  position: relative;
+  left: -5px;
+}
+
+.endBreak::before {
+  content: '🕐';
+  position: relative;
+  left: -5px;
+}
+
+.clockOut::before {
+  content: '🕓';
+  position: relative;
+  left: -5px;
+}
+
+.notWorking {
+  color: red;
+  text-decoration: none;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  font-size: 18px;
+  display: none;
+}
+
+.notWorking.show+.btnAction {
+  display: none;
+}
+
+.notWorking.show {
+  display: flex;
+}
+
+.btnGroup {
+  cursor: pointer;
+}
+
+.tomorrow::before {
+  content: '☀️';
+}
+
+img.rotating {
+  width: 50px;
+  height: 50px;
+  position: relative;
+  top: -5px;
+  -webkit-animation: rotating 2s linear infinite;
+  -moz-animation: rotating 2s linear infinite;
+  -ms-animation: rotating 2s linear infinite;
+  -o-animation: rotating 2s linear infinite;
+  animation: rotating 2s linear infinite;
+}
+
+@-webkit-keyframes rotating
+
+/* Safari and Chrome */
+  {
+  from {
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotating {
+  from {
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  to {
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
