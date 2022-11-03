@@ -15,7 +15,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.storage.local.onChanged.addListener(e => {
   if (e.activateMessage && e.activateMessage.newValue) {
-    const newValue =  e.activateMessage.newValue;
+    const newValue = e.activateMessage.newValue;
     changeActive(newValue.active, newValue);
     updateLabel();
   }
@@ -58,7 +58,9 @@ chrome.alarms.onAlarm.addListener(e => {
 
   chrome.storage.local.get(['tabId'], result => {
     if (!result.tabId) {
-      changeActive(false, {id: null});
+      changeActive(false, {
+        id: null
+      });
       return;
     }
 
@@ -78,16 +80,21 @@ const changeActive = (nextState, tab) => {
   });
 
   chrome.action.setBadgeText({
-    tabId: tab.id,
     text: nextState ? "ON" : "OFF",
   });
-  return nextState ? initAlarm() : clearAlarm();
+  return nextState ? initAlarm(tab) : clearAlarm();
 }
-const initAlarm = () => {
+const initAlarm = (tab) => {
   initInTime();
   initBreakTime();
   initResumeTime();
   initOutTime();
+  chrome.scripting.executeScript({
+    files: ["scripts/checkMainTab.js"],
+    target: {
+      tabId: tab.id
+    },
+  });
 }
 const initInTime = () => {
   const inTime = getDateInMs(8, -1);
@@ -127,11 +134,23 @@ const initOutTime = () => {
   });
 }
 
-const clearAlarm = () => chrome.alarms.clearAll();
+const clearAlarm = () => {
+  chrome.alarms.clearAll();
+  chrome.storage.local.get(['tabId'], result => {
+    if (!result.tabId) return;
+
+    chrome.scripting.executeScript({
+      files: ["scripts/removeMainTab.js"],
+      target: {
+        tabId: result.tabId
+      },
+    });
+  })
+}
 const randomIn = (start, end) => Math.round(Math.random() * (end - start) + start);
 const getDateInMs = (hr, minus) => {
   let rand = randomIn(0, 10);
-  if (minus < 0) rand = - rand;
+  if (minus < 0) rand = -rand;
   const diff = rand < 0 ? -1 : 0;
   const targetDate = new Date();
   targetDate.setHours(hr + diff);
@@ -148,21 +167,11 @@ const getDateInMs = (hr, minus) => {
   }
   return targetDate.getTime();
 }
-const isActiveSite = (tab) => tab.url.startsWith('https://attendance.moneyforward.com/');
 const updateLabel = async () => {
-  let tab = await chrome.tabs.query({
-    active: true,
-    currentWindow: true
-  });
-  if (tab.length == 0 || !tab[0]) return;
-  tab = tab[0];
-  if (isActiveSite(tab)) {
-    chrome.storage.local.get(['active'], result => {
-      chrome.action.setBadgeText({
-        tabId: tab.id,
-        text: result.active ? "ON" : "OFF",
-      });
-    })
-  }
+  chrome.storage.local.get(['active'], result => {
+    chrome.action.setBadgeText({
+      text: result.active ? "ON" : "OFF",
+    });
+  })
 }
 chrome.tabs.onUpdated.addListener(updateLabel)

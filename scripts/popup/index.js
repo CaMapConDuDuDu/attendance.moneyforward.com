@@ -60,7 +60,7 @@ document.querySelector('#stopBtn').onclick = () => setActiveState(false);
   } catch {
     return alert("Invalid time format!!!");
   }
-  debugger
+
   const tab = await getCurrentTab();
   chrome.storage.local.set({
     updateAlarmMessage: {
