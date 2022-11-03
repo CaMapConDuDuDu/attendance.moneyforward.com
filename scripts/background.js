@@ -140,10 +140,10 @@ const getDateInMs = (hr, minus) => {
   if (targetDate.getTime() < new Date().getTime()) {
     targetDate.setDate(targetDate.getDate() + 1);
   }
-  if (targetDate.getDay() == 6) {
+  if (targetDate.getDay() == 6) { // Off on saturday
     targetDate.setDate(targetDate.getDate() + 2);
   }
-  if (targetDate.getDay() == 0) {
+  if (targetDate.getDay() == 0) { // Off on sunday
     targetDate.setDate(targetDate.getDate() + 1);
   }
   return targetDate.getTime();
