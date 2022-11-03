@@ -164,7 +164,7 @@ const getDateInMs = (hr, minus) => {
 }
 const updateLabel = () => {
   chrome.storage.local.get(['active'], result => {
-    chrome.browserAction.setIcon({path: getPath(result.active)});
+    chrome.action.setIcon({path: getPaths(result.active)});
   })
 }
 const getPath = (state) => state ? '/images/icons/started-*.png' : '/images/icons/stopped-*.png';
