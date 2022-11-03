@@ -18,9 +18,18 @@ const setActiveState = async state => {
 }
 const init = async () => {
   const tab = await getCurrentTab();
-  if (!tab.url.startsWith("https://attendance.moneyforward.com/my_page")) {
-    document.querySelector('.notWorking').classList.add("show");
-    throw 'This is not target page';
+  const targetPage = "https://attendance.moneyforward.com/my_page";
+  if (!tab.url.startsWith(targetPage)) {
+    const message = document.querySelector('.notWorking');
+    message.classList.add("show");
+    message.onclick = () => {
+      chrome.storage.local.get(['tabId'], result => {
+        if (!result.tabId) return chrome.tabs.create({url: targetPage });
+        chrome.tabs.get(result.tabId, tabRes => {
+          return  tabRes ? chrome.tabs.update(result.tabId, {selected: true}) : chrome.tabs.create({url: targetPage });
+        })
+      })
+    }
   }
 
   setLabel();
