@@ -140,6 +140,12 @@ const getDateInMs = (hr, minus) => {
   if (targetDate.getTime() < new Date().getTime()) {
     targetDate.setDate(targetDate.getDate() + 1);
   }
+  if (targetDate.getDay() == 6) {
+    targetDate.setDate(targetDate.getDate() + 2);
+  }
+  if (targetDate.getDay() == 0) {
+    targetDate.setDate(targetDate.getDate() + 1);
+  }
   return targetDate.getTime();
 }
 const isActiveSite = (tab) => tab.url.startsWith('https://attendance.moneyforward.com/');
