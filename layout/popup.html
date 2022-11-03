@@ -11,10 +11,10 @@
       </div>
       <div class="message">Service stopped</div>
       <div class="clickInfo">
-        <div class="clockIn">8:00:00</div>
-        <div class="startBreak">12:00:00</div>
-        <div class="endBreak">13:00:00</div>
-        <div class="clockOut">17:00:00</div>
+        <div class="clockIn" data-editable="inTime">8:00:00</div>
+        <div class="startBreak" data-editable="breakTime">12:00:00</div>
+        <div class="endBreak" data-editable="resumeTime">13:00:00</div>
+        <div class="clockOut" data-editable="outTime">17:00:00</div>
       </div>
     </div>
   </div>
@@ -97,6 +97,7 @@
     justify-content: space-between;
     font-size: 14px;
     padding-top: 6px;
+    cursor: pointer;
   }
 
   .clockIn::before {

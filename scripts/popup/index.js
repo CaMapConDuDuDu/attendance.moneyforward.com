@@ -1,7 +1,14 @@
+const getTime = date => date.toString().substr(16, 8);
+const setTimeDOM = (selector, value) => {
+  const dom = document.querySelector(selector);
+  dom.innerText = value ? getTime(new Date(value)) : 'Unset';
+  const isTomorrow = new Date().getDate() != new Date(value).getDate();
+  dom.classList[isTomorrow ? 'add' : 'remove']('tomorrow');
+}
 const setActiveState = async state => {
   const tab = await getCurrentTab();
   chrome.storage.local.set({
-    message: {
+    activateMessage: {
       active: state,
       id: tab.id,
       url: tab.url,
@@ -9,7 +16,6 @@ const setActiveState = async state => {
     }
   });
 }
-
 const init = async () => {
   const tab = await getCurrentTab();
   if (!tab.url.startsWith("https://attendance.moneyforward.com/my_page")) {
@@ -40,13 +46,30 @@ const setLabel = () => {
 }
 
 init();
-document.querySelector('#startBtn').onclick = () => setActiveState(true)
-document.querySelector('#stopBtn').onclick = () => setActiveState(false)
-const getTime = date => date.toString().substr(16, 8);
-const setTimeDOM = (selector, value) => {
-  const dom = document.querySelector(selector);
-  dom.innerText = value ? getTime(new Date(value)) : 'Unset';
-  const isTomorrow = new Date().getDate() != new Date(value).getDate();
-  dom.classList[isTomorrow ? 'add' : 'remove']('tomorrow');
-}
-chrome.storage.local.onChanged.addListener(setLabel)
+document.querySelector('#startBtn').onclick = () => setActiveState(true);
+document.querySelector('#stopBtn').onclick = () => setActiveState(false);
+[...document.querySelectorAll('[data-editable]')].forEach(element => element.onclick = async () => {
+  const res = prompt("What is new value ?", element.innerHTML);
+  if (!res) return;
+  let updateValue = undefined;
+  try {
+    const now = new Date();
+    updateValue = new Date(`${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()} ${res}`);
+    if (now.getTime() > updateValue.getTime()) updateValue.setDate(updateValue.getDate() + 1);
+    updateValue = updateValue.getTime();
+  } catch {
+    return alert("Invalid time format!!!");
+  }
+  debugger
+  const tab = await getCurrentTab();
+  chrome.storage.local.set({
+    updateAlarmMessage: {
+      type: element.dataset.editable,
+      updateValue,
+      id: tab.id,
+      url: tab.url,
+      t: new Date().getTime()
+    }
+  });
+});
+chrome.storage.local.onChanged.addListener(setLabel);

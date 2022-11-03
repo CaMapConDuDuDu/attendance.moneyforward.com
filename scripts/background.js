@@ -8,16 +8,29 @@ chrome.runtime.onInstalled.addListener(() => {
     breakTime: 0,
     resumeTime: 0,
     outTime: 0,
-    message: null
+    activateMessage: null,
+    updateAlarmMessage: null
   });
 });
 
 chrome.storage.local.onChanged.addListener(e => {
-  if (e.message && e.message.newValue) {
-    const newValue =  e.message.newValue;
-    changeActive(newValue.active, newValue)
+  if (e.activateMessage && e.activateMessage.newValue) {
+    const newValue =  e.activateMessage.newValue;
+    changeActive(newValue.active, newValue);
+    updateLabel();
   }
-  updateLabel();
+
+  if (e.updateAlarmMessage && e.updateAlarmMessage.newValue) {
+    const newValue = e.updateAlarmMessage.newValue;
+    chrome.alarms.clear(newValue.type, () => {
+      const storageData = {};
+      storageData[newValue.type] = newValue.updateValue;
+      chrome.storage.local.set(storageData);
+      chrome.alarms.create(newValue.type, {
+        when: newValue.updateValue
+      });
+    })
+  }
 })
 
 chrome.alarms.onAlarm.addListener(e => {
