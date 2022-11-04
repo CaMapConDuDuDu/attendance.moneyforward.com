@@ -163,7 +163,6 @@ const updateLabel = async () => {
     chrome.action.setIcon({
       path: getPaths(result.active)
     });
-    console.log(result.active , !isActiveSite(tab) ,retryCount)
     if (result.active && !isActiveSite(tab) && retryCount-- > 0) {
       chrome.tabs.get(result.tabId, tabRes => {
         if (!tabRes) {
