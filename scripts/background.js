@@ -1,3 +1,5 @@
+const targetPage = "https://attendance.moneyforward.com/my_page";
+let retryCount = 5;
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.set({
     active: false,
@@ -60,7 +62,6 @@ chrome.alarms.onAlarm.addListener(e => {
       });
       return;
     }
-
     chrome.scripting.executeScript({
       files: [script],
       target: {
@@ -76,20 +77,17 @@ const changeActive = (nextState, tab) => {
     tabId: tab.id
   });
 
-  chrome.action.setIcon({path: getPaths(nextState)});
-  return nextState ? initAlarm(tab) : clearAlarm();
+  chrome.action.setIcon({
+    path: getPaths(nextState)
+  });
+  return nextState ? initAlarm() : clearAlarm();
 }
-const initAlarm = (tab) => {
+const initAlarm = () => {
   initInTime();
   initBreakTime();
   initResumeTime();
   initOutTime();
-  chrome.scripting.executeScript({
-    files: ["scripts/checkMainTab.js"],
-    target: {
-      tabId: tab.id
-    },
-  });
+  retryCount = 5;
 }
 const initInTime = () => {
   const inTime = getDateInMs(8, -1);
@@ -131,16 +129,6 @@ const initOutTime = () => {
 
 const clearAlarm = () => {
   chrome.alarms.clearAll();
-  chrome.storage.local.get(['tabId'], result => {
-    if (!result.tabId) return;
-
-    chrome.scripting.executeScript({
-      files: ["scripts/removeMainTab.js"],
-      target: {
-        tabId: result.tabId
-      },
-    });
-  })
 }
 const randomIn = (start, end) => Math.round(Math.random() * (end - start) + start);
 const getDateInMs = (hr, minus) => {
@@ -162,13 +150,40 @@ const getDateInMs = (hr, minus) => {
   }
   return targetDate.getTime();
 }
-const updateLabel = () => {
-  chrome.storage.local.get(['active'], result => {
-    chrome.action.setIcon({path: getPaths(result.active)});
+const isActiveSite = (tab) => tab.url.startsWith(targetPage);
+const updateLabel = async () => {
+  let tab = await chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  });
+  if (tab.length == 0 || !tab[0]) return;
+  tab = tab[0];
+
+  chrome.storage.local.get(['active', 'tabId'], result => {
+    chrome.action.setIcon({
+      path: getPaths(result.active)
+    });
+    console.log(result.active , !isActiveSite(tab) ,retryCount)
+    if (result.active && !isActiveSite(tab) && retryCount-- > 0) {
+      chrome.tabs.get(result.tabId, tabRes => {
+        if (!tabRes) {
+          chrome.tabs.create({
+            url: targetPage
+          }, tab => {
+            chrome.storage.local.set({
+              tabId: tab.id
+            });
+          });
+        }
+      })
+    }
   })
+
 }
 const getPath = (state) => state ? '/images/icons/started-*.png' : '/images/icons/stopped-*.png';
 const getPaths = (state) => {
   return [16, 32, 64, 128].reduce((acc, r) => (acc[r] = getPath(state).replace('*', r), acc), {});
 }
 chrome.tabs.onUpdated.addListener(updateLabel)
+chrome.tabs.onReplaced.addListener(updateLabel)
+chrome.tabs.onRemoved.addListener(updateLabel)

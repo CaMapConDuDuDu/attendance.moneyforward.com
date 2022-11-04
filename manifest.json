@@ -12,7 +12,7 @@
       "128": "images/icons/stopped-128.png"
     }
   },
-  "permissions": ["scripting", "activeTab", "alarms", "storage", "tabs"],
+  "permissions": ["scripting", "activeTab", "alarms", "storage", "tabs", "https://attendance.moneyforward.com/my_page"],
   "background": {
     "service_worker": "scripts/background.js"
   }
