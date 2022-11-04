@@ -57,6 +57,8 @@ const setLabel = () => {
 init();
 document.querySelector('#startBtn').onclick = () => setActiveState(true);
 document.querySelector('#stopBtn').onclick = () => setActiveState(false);
+document.querySelector('.gearIcon').onclick = (e) => setActiveState(e.target.parentElement.classList.contains('stopped'));
+
 [...document.querySelectorAll('[data-editable]')].forEach(element => element.onclick = async () => {
   const res = prompt("What is new value ?", element.innerHTML);
   if (!res) return;
