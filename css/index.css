@@ -171,6 +171,16 @@
 .tomorrow::before {
   content: '☀️';
 }
+.syncIcon {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  right: 0;
+}
+
+.syncIcon.noSync {
+  filter: invert(57%) sepia(98%) saturate(5809%) hue-rotate(345deg) brightness(103%) contrast(81%);
+}
 
 @-webkit-keyframes rotating
 

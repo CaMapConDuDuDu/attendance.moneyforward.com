@@ -53,6 +53,9 @@ const setLabel = () => {
     chrome.alarms.get('outTime', e => setTimeDOM('.clockOut', (e || {}).scheduledTime));
     document.querySelector('.btnGroup').classList[result.active ? 'remove' : 'add']('stopped');
   });
+  chrome.storage.sync.get(['syncActive'], result => {
+    document.querySelector('.syncIcon').classList[result.syncActive ? 'remove' : 'add']('noSync');
+  })
 }
 
 init();

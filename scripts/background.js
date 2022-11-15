@@ -54,8 +54,8 @@ chrome.alarms.onAlarm.addListener(e => {
   }
 
   if (!script) return;
-
-  chrome.storage.local.get(['tabId'], result => {
+  
+  const executeScript = () => chrome.storage.local.get(['tabId'], result => {
     if (!result.tabId) {
       changeActive(false, {
         id: null
@@ -69,12 +69,20 @@ chrome.alarms.onAlarm.addListener(e => {
       },
     });
   });
+
+  chrome.storage.sync.get(['syncActive'], function(result) {
+    if (!result.syncActive) return;
+    executeScript();
+  });
 })
 
 const changeActive = (nextState, tab) => {
   chrome.storage.local.set({
     active: nextState,
     tabId: tab.id
+  });
+  chrome.storage.sync.set({
+    syncActive: nextState,
   });
 
   chrome.action.setIcon({
