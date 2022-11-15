@@ -1,5 +1,5 @@
 const targetPage = "https://attendance.moneyforward.com/my_page";
-let retryCount = 5;
+let retryCount = 1;
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.set({
     active: false,
@@ -87,7 +87,7 @@ const initAlarm = () => {
   initBreakTime();
   initResumeTime();
   initOutTime();
-  retryCount = 5;
+  retryCount = 1;
 }
 const initInTime = () => {
   const inTime = getDateInMs(8, -1);
@@ -150,7 +150,7 @@ const getDateInMs = (hr, minus) => {
   }
   return targetDate.getTime();
 }
-const isActiveSite = (tab) => tab.url.startsWith(targetPage);
+const isActiveSite = (tab) => tab.url == targetPage;
 const updateLabel = async () => {
   let tab = await chrome.tabs.query({
     active: true,
@@ -165,7 +165,7 @@ const updateLabel = async () => {
     });
     if (result.active && !isActiveSite(tab) && retryCount > 0) {
       chrome.tabs.get(result.tabId, tabRes => {
-        if (!tabRes) {
+        if (!tabRes || tabRes.url != targetPage) {
           chrome.tabs.create({
             url: targetPage
           }, tab => {

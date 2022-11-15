@@ -2,6 +2,7 @@ const getTime = date => date.toString().substr(16, 8);
 const setTimeDOM = (selector, value) => {
   const dom = document.querySelector(selector);
   dom.innerText = value ? getTime(new Date(value)) : 'Unset';
+  dom.title = new Date(value);
   const isTomorrow = new Date().getDate() != new Date(value).getDate();
   dom.classList[isTomorrow ? 'add' : 'remove']('tomorrow');
 }
