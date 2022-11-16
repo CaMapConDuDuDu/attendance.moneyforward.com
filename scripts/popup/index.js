@@ -1,10 +1,17 @@
 const getTime = date => date.toString().substr(16, 8);
 const setTimeDOM = (selector, value) => {
   const dom = document.querySelector(selector);
-  dom.innerText = value ? getTime(new Date(value)) : 'Unset';
+  if (!value) {
+    dom.innerText = 'Unused';
+    dom.classList.add('turnoff');
+    dom.title = "This not working";
+    return;
+  }
+  dom.innerText = getTime(new Date(value));
   dom.title = new Date(value);
   const isTomorrow = new Date().getDate() != new Date(value).getDate();
   dom.classList[isTomorrow ? 'add' : 'remove']('tomorrow');
+  dom.classList.remove('turnoff');
 }
 const setActiveState = async state => {
   const tab = await getCurrentTab();
@@ -46,13 +53,13 @@ const getCurrentTab = async () => {
 }
 
 const setLabel = () => {
-  chrome.storage.local.get(['active', 'inTime', 'breakTime', 'resumeTime', 'outTime'], result => {
-    chrome.alarms.get('inTime', e => setTimeDOM('.clockIn', (e || {}).scheduledTime))
-    chrome.alarms.get('breakTime', e => setTimeDOM('.startBreak', (e || {}).scheduledTime));
-    chrome.alarms.get('resumeTime', e => setTimeDOM('.endBreak', (e || {}).scheduledTime));
-    chrome.alarms.get('outTime', e => setTimeDOM('.clockOut', (e || {}).scheduledTime));
+  chrome.storage.local.get(['active'], result => {
     document.querySelector('.btnGroup').classList[result.active ? 'remove' : 'add']('stopped');
   });
+  chrome.alarms.get('inTime', e => setTimeDOM('.clockIn', (e || {}).scheduledTime))
+  chrome.alarms.get('breakTime', e => setTimeDOM('.startBreak', (e || {}).scheduledTime));
+  chrome.alarms.get('resumeTime', e => setTimeDOM('.endBreak', (e || {}).scheduledTime));
+  chrome.alarms.get('outTime', e => setTimeDOM('.clockOut', (e || {}).scheduledTime));
   chrome.storage.sync.get(['syncActive'], result => {
     document.querySelector('.syncIcon').classList[result.syncActive ? 'remove' : 'add']('noSync');
   })
@@ -64,16 +71,17 @@ document.querySelector('#stopBtn').onclick = () => setActiveState(false);
 document.querySelector('.gearIcon').onclick = (e) => setActiveState(e.target.parentElement.classList.contains('stopped'));
 
 [...document.querySelectorAll('[data-editable]')].forEach(element => element.onclick = async () => {
-  const res = prompt("What is new value ?", element.innerHTML);
-  if (!res) return;
+  const res = prompt("What is new value (Empty to turn off)?", element.innerHTML);
   let updateValue = undefined;
-  try {
-    const now = new Date();
-    updateValue = new Date(`${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()} ${res}`);
-    if (now.getTime() > updateValue.getTime()) updateValue.setDate(updateValue.getDate() + 1);
-    updateValue = updateValue.getTime();
-  } catch {
-    return alert("Invalid time format!!!");
+  if (res != '') {
+    try {
+      const now = new Date();
+      updateValue = new Date(`${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()} ${res}`);
+      if (now.getTime() > updateValue.getTime()) updateValue.setDate(updateValue.getDate() + 1);
+      updateValue = updateValue.getTime();
+    } catch {
+      return alert("Invalid time format!!!");
+    }
   }
 
   const tab = await getCurrentTab();

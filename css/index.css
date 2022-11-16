@@ -111,7 +111,7 @@
   right: 0;
   opacity: 1;
   transition: all 1s;
-  text-align: center;
+  text-align: left;
 }
 
 .btnGroup.stopped ~ .clickInfo .clockIn, 
@@ -130,24 +130,28 @@
   content: '🕗';
   position: relative;
   left: -5px;
+  background-color: #70cb9677;
 }
 
 .startBreak::before {
   content: '🕛';
   position: relative;
   left: -5px;
+  background-color: #70cb9677;
 }
 
 .endBreak::before {
   content: '🕐';
   position: relative;
   left: -5px;
+  background-color: #70cb9677;
 }
 
 .clockOut::before {
   content: '🕓';
   position: relative;
   left: -5px;
+  background-color: #70cb9677;
 }
 
 .notWorking {
@@ -170,6 +174,10 @@
 
 .tomorrow::before {
   content: '☀️';
+}
+.turnoff::before {
+  content: '☁️';
+  background-color: #cb707077;
 }
 .syncIcon {
   width: 20px;

@@ -22,9 +22,11 @@ chrome.storage.local.onChanged.addListener(e => {
   if (e.updateAlarmMessage && e.updateAlarmMessage.newValue) {
     const newValue = e.updateAlarmMessage.newValue;
     chrome.alarms.clear(newValue.type, () => {
-      const storageData = {};
+      const storageData = {t: new Date()};
       storageData[newValue.type] = newValue.updateValue;
-      setTimeout(() => chrome.storage.local.set(storageData), 100);
+      setTimeout(() => chrome.storage.local.set(storageData), 1000);
+
+      if (!newValue.updateValue) return;
       chrome.alarms.create(newValue.type, {
         when: newValue.updateValue
       });
