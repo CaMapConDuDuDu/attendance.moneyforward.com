@@ -2,7 +2,7 @@
 # How to install
 
 1. Download source at https://github.com/CaMapConDuDuDu/attendance.moneyforward.com/archive/refs/heads/develop.zip
-2. Extract source to anywhere you would like to, in this example I take "D:\auto-attendance\"
+2. Extract source to anywhere you would like to, example "D:\auto-attendance\"
 
 After that, it should look like:
 
