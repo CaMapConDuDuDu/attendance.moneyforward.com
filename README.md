@@ -51,6 +51,7 @@ And let the extension do the automatical things ⚙️⚙️⚙️
 1. Automatically create and renew a ***RANDOM*** time to press the button, that make the results look more realistic
 2. You can change the moment of clicking by click to that clock, enter new value, and press OK.
 3. It allows you to deactivate any auto clicking button by leaving an empty time in Feature#2
+4. Auto skip Sat & Sun
 
 
 # In the Future
