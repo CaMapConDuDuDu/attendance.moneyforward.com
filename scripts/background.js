@@ -11,7 +11,16 @@ chrome.runtime.onInstalled.addListener(() => {
     updateAlarmMessage: null
   });
 });
-
+chrome.commands.onCommand.addListener(async (command) => {
+  if (command == 'startStop') {
+    let tab = await getCurrentTab();
+    if (!tab) return;
+    chrome.storage.local.get(['active'], result => { 
+      changeActive(!result.active, tab.id);
+      updateLabel();
+    })
+  }
+});
 chrome.storage.local.onChanged.addListener(e => {
   if (e.activateMessage && e.activateMessage.newValue) {
     const newValue = e.activateMessage.newValue;
@@ -162,12 +171,8 @@ const getDateInMs = (hr, minus) => {
 }
 const isActiveSite = (tab) => tab.url == targetPage;
 const updateLabel = async () => {
-  let tab = await chrome.tabs.query({
-    active: true,
-    currentWindow: true
-  });
-  if (tab.length == 0 || !tab[0]) return;
-  tab = tab[0];
+  let tab = await getCurrentTab();
+  if (!tab) return;
 
   chrome.storage.local.get(['active', 'tabId'], result => {
     chrome.action.setIcon({
@@ -193,6 +198,14 @@ const updateLabel = async () => {
 const getPath = (state) => state ? '/images/icons/started-*.png' : '/images/icons/stopped-*.png';
 const getPaths = (state) => {
   return [16, 32, 64, 128].reduce((acc, r) => (acc[r] = getPath(state).replace('*', r), acc), {});
+}
+const getCurrentTab = async () => {
+  let tab = await chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  });
+  if (tab.length == 0) return null;
+  return tab[0];
 }
 chrome.tabs.onUpdated.addListener(updateLabel)
 chrome.tabs.onReplaced.addListener(updateLabel)

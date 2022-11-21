@@ -15,5 +15,14 @@
   "permissions": ["scripting", "activeTab", "alarms", "storage", "tabs"],
   "background": {
     "service_worker": "scripts/background.js"
+  },
+  "commands": {
+    "startStop": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "Start/Stop"
+    }
   }
 }

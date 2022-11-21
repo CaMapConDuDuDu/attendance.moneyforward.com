@@ -44,7 +44,7 @@ chrome://extensions/
 
 For sure, we open page https://attendance.moneyforward.com/my_page
 
-Then, press the tiny play icon inside the gear
+Then, press the tiny play icon inside the gear. Or just press Ctrl+Shift+S (Start/Pause shortcut)
 
 And let the extension do the automatical things ⚙️⚙️⚙️ 
 
