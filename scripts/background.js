@@ -137,7 +137,7 @@ const initResumeTime = () => {
   });
 }
 const initOutTime = () => {
-  const outTime = getDateInMs(17, 1);
+  const outTime = getDateInMs(17, 1, 15, 20);
   chrome.storage.local.set({
     outTime
   });
@@ -150,8 +150,8 @@ const clearAlarm = () => {
   chrome.alarms.clearAll();
 }
 const randomIn = (start, end) => Math.round(Math.random() * (end - start) + start);
-const getDateInMs = (hr, minus) => {
-  let rand = randomIn(0, 10);
+const getDateInMs = (hr, minus, start = 0, end = 10) => {
+  let rand = randomIn(start, end);
   if (minus < 0) rand = -rand;
   const diff = rand < 0 ? -1 : 0;
   const targetDate = new Date();
@@ -178,7 +178,7 @@ const updateLabel = async () => {
     chrome.action.setIcon({
       path: getPaths(result.active)
     });
-    if (result.active && !isActiveSite(tab) && retryCount > 0) {
+    if (result.active && !isActiveSite(tab) && retryCount-- > 0) {
       chrome.tabs.get(result.tabId, tabRes => {
         if (!tabRes || tabRes.url != targetPage) {
           chrome.tabs.create({
@@ -188,7 +188,6 @@ const updateLabel = async () => {
               tabId: tab.id
             });
           });
-          retryCount--;
         }
       })
     }
