@@ -16,6 +16,9 @@
   "background": {
     "service_worker": "scripts/background.js"
   },
+  "host_permissions": [
+    "https://attendance.moneyforward.com/my_page"
+  ],
   "commands": {
     "startStop": {
       "suggested_key": {

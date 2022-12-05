@@ -1,5 +1,4 @@
 const targetPage = "https://attendance.moneyforward.com/my_page";
-let retryCount = 1;
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.set({
     active: false,
@@ -10,13 +9,13 @@ chrome.runtime.onInstalled.addListener(() => {
     activateMessage: null,
     updateAlarmMessage: null
   });
+  chrome.alarms.clearAll();
 });
+
 chrome.commands.onCommand.addListener(async (command) => {
   if (command == 'startStop') {
-    let tab = await getCurrentTab();
-    if (!tab) return;
     chrome.storage.local.get(['active'], result => { 
-      changeActive(!result.active, tab.id);
+      changeActive(!result.active, 0);
       updateLabel();
     })
   }
@@ -66,20 +65,14 @@ chrome.alarms.onAlarm.addListener(e => {
 
   if (!script) return;
   
-  const executeScript = () => chrome.storage.local.get(['tabId'], result => {
-    if (!result.tabId) {
-      changeActive(false, {
-        id: null
-      });
-      return;
-    }
+  const executeScript = async () => {
     chrome.scripting.executeScript({
       files: [script],
       target: {
-        tabId: result.tabId
+        tabId: await checkTabOk(e.name)
       },
     });
-  });
+  }
 
   chrome.storage.sync.get(['syncActive'], function(result) {
     if (!result.syncActive) return;
@@ -106,7 +99,6 @@ const initAlarm = () => {
   initBreakTime();
   initResumeTime();
   initOutTime();
-  retryCount = 1;
 }
 const initInTime = () => {
   const inTime = getDateInMs(8, -1);
@@ -171,26 +163,10 @@ const getDateInMs = (hr, minus, start = 0, end = 10) => {
 }
 const isActiveSite = (tab) => tab.url == targetPage;
 const updateLabel = async () => {
-  let tab = await getCurrentTab();
-  if (!tab) return;
-
-  chrome.storage.local.get(['active', 'tabId'], result => {
+  chrome.storage.local.get(['active'], result => {
     chrome.action.setIcon({
       path: getPaths(result.active)
     });
-    if (result.active && !isActiveSite(tab) && retryCount-- > 0) {
-      chrome.tabs.get(result.tabId, tabRes => {
-        if (!tabRes || tabRes.url != targetPage) {
-          chrome.tabs.create({
-            url: targetPage
-          }, tab => {
-            chrome.storage.local.set({
-              tabId: tab.id
-            });
-          });
-        }
-      })
-    }
   })
 
 }
@@ -199,12 +175,37 @@ const getPaths = (state) => {
   return [16, 32, 64, 128].reduce((acc, r) => (acc[r] = getPath(state).replace('*', r), acc), {});
 }
 const getCurrentTab = async () => {
-  let tab = await chrome.tabs.query({
-    active: true,
-    currentWindow: true
+  const tab = await chrome.tabs.query({
+    active: true
   });
   if (tab.length == 0) return null;
   return tab[0];
+}
+const checkTabOk = async (alarmName) => {
+  const tabId = await new Promise((resolve) => { 
+    chrome.storage.local.get(['tabId'], result => {
+      resolve(result.tabId);
+    })
+  });
+
+  const allTabs = await chrome.tabs.query({});
+  let tab = allTabs.filter(e => e.id == tabId && isActiveSite(e))[0];
+  if (tab) {
+    return tab.id;
+  }
+  
+  tab = await new Promise((resolve) => { 
+    chrome.tabs.create({
+      url: targetPage
+    }, tab => resolve(tab));
+  });
+  chrome.storage.local.set({
+    tabId: tab.id
+  });
+  chrome.alarms.create(alarmName, {
+    when: Date.now() + 20000
+  });
+  return tab.id;
 }
 chrome.tabs.onUpdated.addListener(updateLabel)
 chrome.tabs.onReplaced.addListener(updateLabel)
