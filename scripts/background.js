@@ -14,7 +14,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.commands.onCommand.addListener(async (command) => {
   if (command == 'startStop') {
-    chrome.storage.local.get(['active'], result => { 
+    chrome.storage.local.get(['active'], result => {
       changeActive(!result.active, 0);
       updateLabel();
     })
@@ -30,8 +30,26 @@ chrome.storage.local.onChanged.addListener(e => {
   if (e.updateAlarmMessage && e.updateAlarmMessage.newValue) {
     const newValue = e.updateAlarmMessage.newValue;
     chrome.alarms.clear(newValue.type, () => {
-      const storageData = {t: new Date()};
-      storageData[newValue.type] = newValue.updateValue;
+      const storageData = {
+        t: new Date()
+      };
+      storageData["OFF_" + newValue.type] = newValue.turnOffForLong;
+      switch (newValue.initDate) {
+        case 'inTime':
+          initInTime(true);
+          break;
+        case 'breakTime':
+          initBreakTime(true);
+          break;
+        case 'resumeTime':
+          initResumeTime(true);
+          break;
+        case 'outTime':
+          initOutTime(true);
+          break;
+        default:
+          storageData[newValue.type] = newValue.updateValue;
+      }
       setTimeout(() => chrome.storage.local.set(storageData), 1000);
 
       if (!newValue.updateValue) return;
@@ -64,7 +82,7 @@ chrome.alarms.onAlarm.addListener(e => {
   }
 
   if (!script) return;
-  
+
   const executeScript = async () => {
     chrome.scripting.executeScript({
       files: [script],
@@ -74,7 +92,7 @@ chrome.alarms.onAlarm.addListener(e => {
     });
   }
 
-  chrome.storage.sync.get(['syncActive'], function(result) {
+  chrome.storage.sync.get(['syncActive'], function (result) {
     if (!result.syncActive) return;
     executeScript();
   });
@@ -100,42 +118,59 @@ const initAlarm = () => {
   initResumeTime();
   initOutTime();
 }
-const initInTime = () => {
-  const inTime = getDateInMs(8, -1);
-  chrome.storage.local.set({
-    inTime
-  });
-  chrome.alarms.create('inTime', {
-    when: inTime
-  });
-}
-const initBreakTime = () => {
-  const breakTime = getDateInMs(12, 1);
-  chrome.storage.local.set({
-    breakTime
-  });
-  chrome.alarms.create('breakTime', {
-    when: breakTime
+const initInTime = (force = false) => {
+  chrome.storage.local.get(['OFF_inTime'], function (result) {
+    if (!result.OFF_inTime || force) {
+      const inTime = getDateInMs(8, -1);
+      chrome.storage.local.set({
+        inTime
+      });
+      chrome.alarms.create('inTime', {
+        when: inTime
+      });
+    }
   });
 }
-const initResumeTime = () => {
-  const resumeTime = getDateInMs(13, -1);
+const initBreakTime = (force = false) => {
+  chrome.storage.local.get(['OFF_breakTime'], function (result) {
+    if (!result.OFF_breakTime || force) {
 
-  chrome.storage.local.set({
-    resumeTime
-  });
-  chrome.alarms.create('resumeTime', {
-    when: resumeTime
+      const breakTime = getDateInMs(12, 1);
+      chrome.storage.local.set({
+        breakTime
+      });
+      chrome.alarms.create('breakTime', {
+        when: breakTime
+      });
+    }
   });
 }
-const initOutTime = () => {
-  const outTime = getDateInMs(17, 1, 15, 20);
-  chrome.storage.local.set({
-    outTime
+const initResumeTime = (force = false) => {
+  chrome.storage.local.get(['OFF_resumeTime'], function (result) {
+    if (!result.OFF_resumeTime || force) {
+      const resumeTime = getDateInMs(13, -1);
+
+      chrome.storage.local.set({
+        resumeTime
+      });
+      chrome.alarms.create('resumeTime', {
+        when: resumeTime
+      });
+    }
   });
-  chrome.alarms.create('outTime', {
-    when: outTime
-  });
+}
+const initOutTime = (force = false) => {
+  chrome.storage.local.get(['OFF_outTime'], function (result) {
+    if (!result.OFF_outTime || force) {
+      const outTime = getDateInMs(17, 1, 15, 20);
+      chrome.storage.local.set({
+        outTime
+      });
+      chrome.alarms.create('outTime', {
+        when: outTime
+      });
+    }
+  })
 }
 
 const clearAlarm = () => {
@@ -182,7 +217,7 @@ const getCurrentTab = async () => {
   return tab[0];
 }
 const checkTabOk = async (alarmName) => {
-  const tabId = await new Promise((resolve) => { 
+  const tabId = await new Promise((resolve) => {
     chrome.storage.local.get(['tabId'], result => {
       resolve(result.tabId);
     })
@@ -193,8 +228,8 @@ const checkTabOk = async (alarmName) => {
   if (tab) {
     return tab.id;
   }
-  
-  tab = await new Promise((resolve) => { 
+
+  tab = await new Promise((resolve) => {
     chrome.tabs.create({
       url: targetPage
     }, tab => resolve(tab));

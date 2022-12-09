@@ -76,9 +76,13 @@ document.querySelector('#stopBtn').onclick = () => setActiveState(false);
 document.querySelector('.gearIcon').onclick = (e) => setActiveState(e.target.parentElement.classList.contains('stopped'));
 
 [...document.querySelectorAll('[data-editable]')].forEach(element => element.onclick = async () => {
-  const res = prompt("What is new value (Empty to turn off)?", element.innerHTML);
+  let askValue = element.innerHTML;
+  if (askValue == 'Unused') askValue = '';
+  const res = prompt("What is new value (blank to turn off, 1 to turn on again)?", askValue);
   let updateValue = undefined;
-  if (res != '') {
+  let turnOffForLong = false;
+  let initDate = false;
+  if (res != '' && res != '1') {
     try {
       const now = new Date();
       updateValue = new Date(`${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()} ${res}`);
@@ -87,6 +91,10 @@ document.querySelector('.gearIcon').onclick = (e) => setActiveState(e.target.par
     } catch {
       return alert("Invalid time format!!!");
     }
+  } else if (res == '1') {
+    initDate = element.dataset.editable;
+  } else {
+    turnOffForLong = confirm("Turn it off until enabled again?");
   }
 
   const tab = await getCurrentTab();
@@ -94,6 +102,8 @@ document.querySelector('.gearIcon').onclick = (e) => setActiveState(e.target.par
     updateAlarmMessage: {
       type: element.dataset.editable,
       updateValue,
+      turnOffForLong,
+      initDate,
       id: tab.id,
       url: tab.url,
       t: new Date().getTime()
