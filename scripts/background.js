@@ -82,12 +82,12 @@ chrome.alarms.onAlarm.addListener(e => {
   }
 
   if (!script) return;
-
   const executeScript = async () => {
+    const tabId = await checkTabOk(e.name);
     chrome.scripting.executeScript({
       files: [script],
       target: {
-        tabId: await checkTabOk(e.name)
+        tabId 
       },
     });
   }
